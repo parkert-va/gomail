@@ -27,6 +27,8 @@ type Dialer struct {
 	// most cases since the authentication mechanism should use the STARTTLS
 	// extension instead.
 	SSL bool
+	// Induces a hard error if the server does not support the STARTTLS extension
+	RequireTLS bool
 	// TSLConfig represents the TLS configuration used for the TLS (when the
 	// STARTTLS extension is used) or SSL connection.
 	TLSConfig *tls.Config
@@ -84,6 +86,8 @@ func (d *Dialer) Dial() (SendCloser, error) {
 				c.Close()
 				return nil, err
 			}
+		} else if d.RequireTLS {
+			return nil, fmt.Errorf("Server does not support STARTTLS")
 		}
 	}
 
